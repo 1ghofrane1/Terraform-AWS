@@ -20,13 +20,13 @@ Builds a highly available AWS infrastructure from Terraform for a php web applic
 
 ## How it works 
 
-To use this project, you must first indicate the root password of our database. In my case, I chose to define it in a file called `terraform.tfvars` (this file name is automatically considered by Terraform during the execution of your configuration). Example :
+To use this project, you must first indicate the root password of our database. Maybe you can use to define it in a file called `terraform.tfvars` (this file name is automatically considered by Terraform during the execution of your configuration). Example :
 
 ```tfvars
 db_password = "your-password"
 ```
 
-Second, you must then create your ssh key pair in the `keys` folder. In my case, I use the `ssh-keygen` command as follows :
+Second, you must then create your ssh key pair in the `keys` folder. Maybe you can use the `ssh-keygen` command as follows :
 
 ```shell
 ssh-keygen -t rsa
@@ -37,7 +37,7 @@ Enter passphrase (empty for no passphrase):
 Enter same passphrase again: 
 ```
 
-Then add the path of your public key in your root module in the `path_to_public_key` parameter of the `my_alb_asg module`. In my case it will be :
+Then add the path of your public key in your root module in the `path_to_public_key` parameter of the `my_alb_asg module`. Maybe it will be :
 
 ```hcl
 module "my_alb_asg" {
