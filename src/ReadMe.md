@@ -1,6 +1,8 @@
 # Application PHP — Articles
 
-Cette application codée en PHP permet de poster un article qui est ensuite sauvegardé sur une base de données MySQL. Voici quelques indications sur deux fichiers sources que vous devez obligatoirement prendre en considération :
+Cette application codée en PHP permet de poster un article qui est ensuite sauvegardé sur une base de données MySQL.  le but de ce mini projet est de réaliser depuis Terraform une infrastructure AWS hautement disponible pour une application en php communiquant avec une base de données relationnelle.
+
+Voici quelques indications sur deux fichiers sources que vous devez obligatoirement prendre en considération :
 
 ## Fichiers sources
 
