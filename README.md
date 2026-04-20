@@ -14,9 +14,9 @@ Builds a highly available AWS infrastructure from Terraform for a PHP web applic
 | `s3` | Creates the S3 bucket and uploads the PHP application sources |
 | `ec2_role_allow_s3` | Creates an EC2 IAM role and instance profile with access to the app bucket and AWS Secrets Manager |
 | `rds` | Creates the MariaDB database and DB subnet group |
-| `secrets_manager` | Stores the database connection information used by EC2 at boot time |
 | `alb_asg` | Creates the application load balancer, target group, launch template, key pair, and auto scaling group |
 | `cloudwatch_cpu_alarms` | Creates the scale-up and scale-down policies plus CPU alarms |
+| `secrets_manager` | Stores the database connection information used by EC2 at boot time |
 
 ## Service Choices
 
