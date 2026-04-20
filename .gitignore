@@ -1,0 +1,23 @@
+﻿# Terraform working directory
+.terraform/
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Terraform variable files (may contain secrets)
+*.tfvars
+*.tfvars.json
+
+# SSH keys
+keys/*
+!keys/.gitkeep
+
+# Terraform lock and plan files
+*.tfplan
+crash.log
+crash.*.log
+
+# CLI config files
+.terraformrc
+terraform.rc

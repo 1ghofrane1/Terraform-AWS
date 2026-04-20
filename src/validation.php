@@ -28,5 +28,5 @@ function validate(PDO $PDO){
    
 }
 
-$PDO = new PDO(DB_DSN, DB_USER, DB_PASS, $options);
+$PDO = getPDO();
 validate($PDO);

@@ -94,7 +94,7 @@ function getArticles(PDO $PDO)
 
     <?php
     try {
-      $PDO = new PDO(DB_DSN, DB_USER, DB_PASS, $options);
+      $PDO = getPDO();
 
       $articles = getArticles($PDO);
       foreach ($articles as $article) {
