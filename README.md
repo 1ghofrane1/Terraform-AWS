@@ -20,6 +20,108 @@ Builds a highly available AWS infrastructure from Terraform for a PHP web applic
 
 ## Service Choices
 
+### Amazon VPC (Virtual Private Cloud)
+
+Amazon VPC est utilisé pour créer un réseau isolé et sécurisé dans AWS, incluant des sous-réseaux publics/privés, des passerelles Internet/NAT, des tables de routage et des groupes de sécurité. Ce choix est justifié par :
+
+- **Isolation et sécurité** : Permet de séparer les ressources (e.g., EC2 en privé, ALB en public) et contrôler le trafic via des règles précises.
+- **Haute disponibilité** : Déploiement multi-AZ avec sous-réseaux dans différentes zones pour la résilience.
+- **Intégration** : Base pour tous les autres services (RDS, ALB), facilitant la connectivité privée.
+- **Simplicité** : Terraform automatise la création complète du réseau, évitant les configurations manuelles.
+
+#### Comparaison
+
+| Service | Avantages | Inconvénients | Comparaison avec VPC |
+|---------|-----------|---------------|----------------------|
+| **Azure Virtual Network** | Intégration forte avec Azure AD ; support VNet peering. | Moins flexible pour les configurations avancées sans templates. | Similaire pour l'isolation, mais VPC offre plus de granularité dans les règles de sécurité. |
+| **Google Cloud VPC** | Routage automatique ; intégration avec GKE. | Moins mature pour les environnements hybrides. | Comparable, mais VPC est plus intégré aux services AWS comme EC2/RDS. |
+| **Open-source (e.g., Calico)** | Gratuit et personnalisable pour Kubernetes. | Nécessite une gestion manuelle ; pas natif cloud. | Plus flexible pour multi-cloud, mais VPC est plus simple pour AWS pur. |
+
+### Amazon S3 (Simple Storage Service)
+
+Amazon S3 stocke et sert les sources de l'application PHP de manière statique et sécurisée. Justifications :
+
+- **Durabilité et scalabilité** : Stockage objet hautement durable (99.999999999%) et évolutif sans limites.
+- **Sécurité** : Accès privé via IAM, avec chiffrement automatique.
+- **Intégration** : Sync automatique depuis Terraform et récupération par EC2 via user-data.
+- **Coût** : Pay-as-you-go, idéal pour des assets statiques.
+
+#### Comparaison
+
+| Service | Avantages | Inconvénients | Comparaison avec S3 |
+|---------|-----------|---------------|---------------------|
+| **Azure Blob Storage** | Intégration avec Azure Functions ; tiers froid/chaud. | Moins d'options de classes de stockage. | Similaire en durabilité, mais S3 offre plus de flexibilité pour les accès fréquents. |
+| **Google Cloud Storage** | Forte intégration avec BigQuery ; versioning avancé. | Coûts plus élevés pour les transferts. | Comparable, mais S3 est plus mature pour les déploiements globaux. |
+| **MinIO** (Open-source) | Auto-hébergé ; compatible S3 API. | Gestion manuelle requise. | Économique pour on-prem, mais S3 est plus fiable et sans maintenance. |
+
+### Amazon EC2 (avec IAM Roles)
+
+Amazon EC2 fournit les instances de calcul via Auto Scaling Groups (ASG), avec des rôles IAM pour l'accès sécurisé. Justifications :
+
+- **Scalabilité** : ASG ajuste automatiquement le nombre d'instances basé sur la charge (CPU).
+- **Sécurité** : Rôles IAM évitent les clés statiques ; accès limité à S3/Secrets Manager.
+- **Flexibilité** : Instances t2.micro économiques, avec user-data pour bootstrap.
+- **Haute disponibilité** : Multi-AZ via ASG.
+
+#### Comparaison
+
+| Service | Avantages | Inconvénients | Comparaison avec EC2 |
+|---------|-----------|---------------|----------------------|
+| **Azure VMs** | Intégration avec Azure AD ; support Windows/Linux. | Moins d'options de types d'instances. | Similaire pour la scalabilité, mais EC2 offre plus de diversité d'AMIs. |
+| **Google Compute Engine** | Prépayé flexible ; intégration GKE. | Moins mature pour les workloads legacy. | Comparable, mais EC2 est plus intégré aux services AWS comme ALB. |
+| **AWS Lambda** | Serverless ; pas de gestion d'instances. | Limité aux runtimes supportés. | Plus économique pour event-driven, mais EC2 est nécessaire pour des apps PHP persistantes. |
+
+### Amazon RDS (Relational Database Service)
+
+Amazon RDS gère la base de données MariaDB avec Multi-AZ pour la haute disponibilité. Justifications :
+
+- **Gestion simplifiée** : Automatisation des backups, patches et scalabilité.
+- **Haute disponibilité** : Multi-AZ pour failover automatique.
+- **Sécurité** : Chiffrement, accès via VPC privé.
+- **Performance** : Instance db.t3.micro adaptée au projet.
+
+#### Comparaison
+
+| Service | Avantages | Inconvénients | Comparaison avec RDS |
+|---------|-----------|---------------|----------------------|
+| **Azure Database for MySQL** | Intégration Azure AD ; scaling automatique. | Moins d'options de moteurs DB. | Similaire en gestion, mais RDS offre plus de flexibilité pour les migrations. |
+| **Google Cloud SQL** | Intégration BigQuery ; backups automatiques. | Coûts plus élevés pour les instances. | Comparable, mais RDS est plus robuste pour les workloads critiques. |
+| **Self-hosted MySQL** | Contrôle total ; gratuit. | Gestion manuelle (backups, sécurité). | Plus flexible, mais RDS évite la surcharge opérationnelle. |
+
+### Amazon ALB (Application Load Balancer)
+
+Amazon ALB distribue le trafic HTTP vers les instances EC2 de manière équilibrée. Justifications :
+
+- **Équilibrage avancé** : Routage basé sur le contenu (paths, headers).
+- **Haute disponibilité** : Multi-AZ, health checks automatiques.
+- **Sécurité** : Intégration avec WAF ; trafic public sécurisé.
+- **Scalabilité** : S'adapte à la charge sans intervention.
+
+#### Comparaison
+
+| Service | Avantages | Inconvénients | Comparaison avec ALB |
+|---------|-----------|---------------|----------------------|
+| **Azure Load Balancer** | Intégration Azure VMs ; support TCP/UDP. | Moins avancé pour HTTP. | Bon pour TCP, mais ALB excelle dans le routage applicatif. |
+| **Google Cloud Load Balancing** | Global ; intégration GKE. | Plus complexe à configurer. | Comparable en scalabilité, mais ALB est plus simple pour AWS. |
+| **NGINX** (Open-source) | Gratuit ; hautement personnalisable. | Gestion manuelle requise. | Flexible, mais ALB offre haute disponibilité sans maintenance. |
+
+### Amazon CloudWatch
+
+Amazon CloudWatch surveille les métriques (CPU) et déclenche des alarmes pour le scaling. Justifications :
+
+- **Monitoring intégré** : Métriques natives d'EC2/ASG sans setup.
+- **Automatisation** : Alarmes déclenchent des politiques de scaling.
+- **Alertes** : Notifications possibles via SNS (non implémenté ici).
+- **Coût** : Gratuit pour les métriques de base.
+
+#### Comparaison
+
+| Service | Avantages | Inconvénients | Comparaison avec CloudWatch |
+|---------|-----------|---------------|-----------------------------|
+| **Azure Monitor** | Intégration Azure AD ; dashboards avancés. | Moins granulaire pour les métriques custom. | Similaire, mais CloudWatch est plus intégré aux services AWS. |
+| **Google Cloud Monitoring** | Intégration Stackdriver ; alerting avancé. | Coûts pour les métriques custom. | Comparable, mais CloudWatch est plus économique pour les bases. |
+| **Prometheus** (Open-source) | Gratuit ; extensible. | Configuration manuelle. | Plus flexible, mais CloudWatch est plus simple pour AWS. |
+
 ### AWS Secrets Manager
 
 Dans cette architecture Terraform, AWS Secrets Manager est utilisé pour stocker de manière sécurisée les informations de connexion à la base de données (hôte, nom de base, utilisateur et mot de passe) sous forme de JSON chiffré. Ce choix est justifié par plusieurs raisons:
