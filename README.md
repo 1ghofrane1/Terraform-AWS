@@ -15,8 +15,14 @@ Builds a highly available AWS infrastructure from Terraform for a PHP web applic
 | `ec2_role_allow_s3` | Creates an EC2 IAM role and instance profile with access to the app bucket and AWS Secrets Manager |
 | `rds` | Creates the MariaDB database and DB subnet group |
 | `alb_asg` | Creates the application load balancer, target group, launch template, key pair, and auto scaling group |
-| `cloudwatch_cpu_alarms` | Creates the scale-up and scale-down policies plus CPU alarms |
+| `cloudwatch_cpu_alarms` | Creates the scale-up and scale-down policies, CPU alarms, and optional SNS email notifications |
 | `secrets_manager` | Stores the database connection information used by EC2 at boot time |
+
+## Notifications
+
+Auto Scaling alarm notifications can be enabled by setting `sns_email` in `terraform.tfvars`.
+
+After `terraform apply`, AWS SNS sends a confirmation email to that address. Notifications only start after the subscription is confirmed from that email.
 
 ## Service Choices
 

@@ -37,3 +37,8 @@ output "autoscaling_group_name" {
   description = "Auto Scaling Group name for web instances."
   value       = module.alb_asg.autoscaling_group_name
 }
+
+output "asg_alarm_sns_topic_arn" {
+  description = "SNS topic ARN used for Auto Scaling alarm email notifications."
+  value       = module.cloudwatch_cpu_alarms.sns_topic_arn
+}

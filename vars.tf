@@ -88,3 +88,10 @@ variable "existing_instance_profile_name" {
   default     = null
   nullable    = true
 }
+
+variable "sns_email" {
+  description = "Email address subscribed to SNS notifications for Auto Scaling alarm triggers. Set to null to disable email notifications."
+  type        = string
+  default     = null
+  nullable    = true
+}

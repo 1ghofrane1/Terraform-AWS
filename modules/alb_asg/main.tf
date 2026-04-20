@@ -82,16 +82,17 @@ resource "aws_launch_template" "web" {
   mkdir -p /etc/pki/rds
   curl -fsSL https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o /etc/pki/rds/global-bundle.pem
 
-  systemctl enable httpd
-  systemctl start httpd
+  export AWS_DEFAULT_REGION=${var.aws_region}
 
-  SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id ${var.db_secret_arn} --query SecretString --output text)
+  SECRET_JSON=$(aws secretsmanager get-secret-value --region ${var.aws_region} --secret-id ${var.db_secret_arn} --query SecretString --output text)
 
   DB_HOST=$(echo "$SECRET_JSON" | jq -r '.host')
   DB_USER=$(echo "$SECRET_JSON" | jq -r '.username')
   DB_PASSWORD=$(echo "$SECRET_JSON" | jq -r '.password')
 
-  aws s3 sync s3://${var.s3_bucket_name} /var/www/html/
+  aws s3 sync --region ${var.aws_region} s3://${var.s3_bucket_name} /var/www/html/
+  rm -f /etc/httpd/conf.d/welcome.conf
+  rm -f /var/www/html/index.html
 
   sed -i "s|##DB_HOST##|$DB_HOST|g" /var/www/html/db-config.php
   sed -i "s|##DB_USER##|$DB_USER|g" /var/www/html/db-config.php
@@ -108,6 +109,9 @@ resource "aws_launch_template" "web" {
 
   chown -R apache:apache /var/www/html
   chmod -R 755 /var/www/html
+
+  systemctl enable httpd
+  systemctl restart httpd
 EOF
   )
 

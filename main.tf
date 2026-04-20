@@ -76,6 +76,7 @@ module "secrets_manager" {
 
 module "alb_asg" {
   source                = "./modules/alb_asg"
+  aws_region            = var.aws_region
   project_name          = var.project_name
   vpc_id                = module.vpc.vpc_id
   public_subnet_ids     = module.vpc.public_subnet_ids
@@ -98,6 +99,8 @@ module "cloudwatch_cpu_alarms" {
   source                 = "./modules/cloudwatch_cpu_alarms"
   project_name           = var.project_name
   autoscaling_group_name = module.alb_asg.autoscaling_group_name
+  sns_email              = var.sns_email
+  tags                   = local.tags
 }
 
 moved {
